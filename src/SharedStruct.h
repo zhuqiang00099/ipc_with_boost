@@ -8,6 +8,9 @@
 #include <string>
 namespace bi = boost::interprocess;
 namespace bip = boost::interprocess;
+// 使用共享内存分配器定义的 vector 来存储图像数据
+typedef bip::allocator<unsigned char, bip::managed_shared_memory::segment_manager> ShmemAllocator;
+typedef bip::vector<unsigned char, ShmemAllocator> ShmemVector;
 struct SharedImage
 {    
     int imgWidth;
@@ -15,10 +18,6 @@ struct SharedImage
     int imgChannels;
     int imgStep;
     bool used;
-    // 使用共享内存分配器定义的 vector 来存储图像数据
-    typedef bip::allocator<unsigned char, bip::managed_shared_memory::segment_manager> ShmemAllocator;
-    typedef bip::vector<unsigned char, ShmemAllocator> ShmemVector;
-
     ShmemVector data;
 
     // 构造函数
@@ -26,12 +25,14 @@ struct SharedImage
 };
 
 
+
+
 class TickCount
 {
     public:
     TickCount() : start_time_(boost::posix_time::microsec_clock::universal_time()) {}
     double elapsed() const {
-        return (boost::posix_time::microsec_clock::universal_time() - start_time_).total_milliseconds();
+        return (boost::posix_time::microsec_clock::universal_time() - start_time_).total_microseconds()/1000.0;
     }
     void reset() {
         start_time_ = boost::posix_time::microsec_clock::universal_time();
@@ -63,7 +64,6 @@ static bool my_timed_wait(boost::posix_time::ptime t,std::function<bool()> pred)
 
 static bip::managed_shared_memory create_shared_memory(std::string shm_name, size_t size) {
     try {
-        //std::string shm_name = "HeartbeatSharedMemory";
 
         // Check if the shared memory already exists
         bool shm_exists = false;

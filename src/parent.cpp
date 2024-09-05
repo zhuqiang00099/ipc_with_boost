@@ -36,12 +36,14 @@ public:
            throw std::runtime_error("Shared memory is too small.");
         }
         // 创建分配器
-        SharedImage::ShmemAllocator allocator(shm.get_segment_manager());
+        ShmemAllocator allocator(shm.get_segment_manager());
         // 在共享内存中构造 Image 对象
         shared_image = shm.construct<SharedImage>(SHM_SUFIX_NAME(Image))(allocator);
         quit = shm.construct<bool>(SHM_SUFIX_NAME(quit))();
         timestamp_parent = shm.construct<long long>(SHM_SUFIX_NAME(heartbeat_parent))();
         timestamp_child = shm.construct<long long>(SHM_SUFIX_NAME(heartbeat_child))();
+
+        
         
         *timestamp_parent = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
         *timestamp_child = 0;
@@ -95,7 +97,7 @@ public:
         static int timeout_count=0;
         std::cout << "wait" << std::endl;
         bool timeout_flag = !my_timed_wait(construct_timeout_seconds(2), [&]()
-                                           { return shared_image->used || *quit; }); // Wait until the condition variable is notified
+                                           { return shared_image->used || *quit; });
         if (!timeout_flag){
             count++; 
             timeout_count=0;
@@ -105,6 +107,7 @@ public:
         else{
             timeout_count++;
             if(timeout_count > 2){
+                std::cout<<"child process timeout too many times, may be in dead loop, restart child process"<<std::endl;
                 stop_child_process();
                
             }
@@ -123,7 +126,10 @@ private:
             if (now - *timestamp_child > 3000 && check_start_timestamp())
             {
                 // 子进程崩溃
-                printf("child process crash\n");
+                if(last_start_timestamp > 0){
+                     printf("child process crash\n");
+                }
+               
                 start_child_process();
                 //wait for child process to start
                 //std::this_thread::sleep_for(std::chrono::milliseconds(5000));

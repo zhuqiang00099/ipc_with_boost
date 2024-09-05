@@ -46,7 +46,7 @@ public:
         while (*quit == false)
         {
 
-            std::cout << "Waiting for task" << std::endl;
+            //std::cout << "Waiting for task" << std::endl;
             auto timeout = construct_timeout_seconds(2);
             my_timed_wait(timeout, [&]()
                           { return *quit == true || image->used == false; }); // Wait until the condition variable is notified
@@ -55,25 +55,25 @@ public:
             if (image->used == true)
                 continue;
 
-            std::cout << "get task" << std::endl;
+            //std::cout << "get task" << std::endl;
 
             img = cv::Mat(image->imgHeight, image->imgWidth, CV_8UC3, image->data.data(), image->imgStep).clone();
             image->used = true;
-            printf("Image size: %d x %d\n", img.cols, img.rows);
+            //printf("Image size: %d x %d\n", img.cols, img.rows);
             // cond->notify_all();
 
             cv::imshow("image", img);
             cv::waitKey(100);
-            // static int c=0;
-            // ++c;
-            // if(c % 100 == 0)
-            // {
-            //     // int* key=nullptr;
-            //     // *key=1;//模拟异常退出
-            //     while(true){
-            //          std::this_thread::yield(); //模拟卡死
-            //     }
-            // }
+            //static int c=0;
+            //++c;
+            //if(c % 10 == 0)
+            //{
+                //int* key=nullptr;
+                //*key=1;//模拟异常退出
+                // while(true){
+                //      std::this_thread::yield(); //模拟卡死
+                // }
+            //}
         }
     }
     void heartbeat()
