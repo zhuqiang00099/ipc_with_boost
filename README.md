@@ -1,11 +1,11 @@
 # 简介
 这是一个使用主进程调用子进程的demo,通信使用boost提供的共享内存接口。有进程保护功能，考虑子进程异常退出和卡死的情况，保护逻辑根据自己的实际情况可能需要修改。这个demo的主要应用场景是将图像算法模块进程独立化，当出现未知崩溃时可以立即重启避免不必要的麻烦，当主软件发生崩溃时可以避免纠纷。
 # 如何使用?
-1.下载boost和OpenCV库
-2.CMake并设置OpenCV和boost的路径（设置OpenCV_DIR和BOOST_DIR，OpenCV_DIR路径参考：opencv/cmake，BOOST_DIR路径参考：boost_1_86_0\lib64-msvc-14.3\cmake\Boost-1.86.0）
-3.编译
-4.把killchild.bat复制到bin目录下
-5.在bin目录下带参数启动parent.exe，参数为图片文件夹路径，运行就会不停的显示图片了。
+1. 下载boost和OpenCV库
+2. CMake并设置OpenCV和boost的路径（设置OpenCV_DIR和BOOST_DIR，OpenCV_DIR路径参考：opencv/cmake，BOOST_DIR路径参考：boost_1_86_0\lib64-msvc-14.3\cmake\Boost-1.86.0）
+3. 编译
+4. 把killchild.bat复制到bin目录下
+5. 在bin目录下带参数启动parent.exe，参数为图片文件夹路径，运行就会不停的显示图片了。
 # 注意事项
 1. 图片大小不要超过申请的内存容量，代码里是640*480*10，按需要自己改。
 2. 共享内存是按名称查找的，最好用一个不会和其它进程冲突的名称。如果需要创建多个子进程，请注意命名设计，要可以追溯名称，避免进程挂掉之后无法释放。
